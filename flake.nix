@@ -31,7 +31,7 @@
         inputs.git-hooks-nix.flakeModule
       ];
 
-      flake.overlays.default = import ./overlay.nix;
+      flake.overlays = import ./overlays inputs;
 
       perSystem =
         {
