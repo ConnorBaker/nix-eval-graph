@@ -1,0 +1,11 @@
+# Nix
+result
+result-*
+
+# IDE
+.vscode/
+.direnv/
+.envrc
+
+# Mac OS
+.DS_Store
