@@ -1,0 +1,9 @@
+# TODO: SAD
+# cargo-features = ["edition2024"]
+
+[package]
+name = "produce-attr-paths"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]

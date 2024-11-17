@@ -36,26 +36,34 @@
       perSystem =
         {
           config,
+          lib,
           pkgs,
           system,
           ...
         }:
+        let
+          inherit (lib.filesystem) packagesFromDirectoryRecursive;
+        in
         {
           _module.args.pkgs = import inputs.nixpkgs {
             inherit system;
             overlays = [ inputs.self.overlays.default ];
           };
 
-          devShells.default = pkgs.mkShell {
-            name = "cargo";
-            package = [
-              pkgs.cargo
-            ];
-          };
+          devShells =
+            packagesFromDirectoryRecursive {
+              inherit (pkgs) callPackage;
+              directory = ./devShells;
+            }
+            // {
+              default = config.devShells.rust-devShell;
+            };
 
           legacyPackages = pkgs;
 
-          packages = { };
+          packages = {
+            inherit (pkgs) produce-attr-paths;
+          };
 
           pre-commit.settings.hooks = {
             # Formatter checks
