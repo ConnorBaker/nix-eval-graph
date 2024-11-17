@@ -4,9 +4,9 @@ use std::{
     process::Command,
 };
 
-use serde::{Deserialize, Serialize};
-
 use clap::Parser;
+use serde::{Deserialize, Serialize};
+use tempfile;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -39,7 +39,15 @@ struct Package {
 fn main() {
     let args = Args::parse();
 
+    let nix_show_stats_path_file = tempfile::NamedTempFile::new().unwrap();
+    let nix_show_stats_path_str = nix_show_stats_path_file
+        .path()
+        .to_str()
+        .expect("Couldn't get NIX_SHOW_STATS_PATH file.");
+    // println!("{:?}", nix_show_stats_path_str);
+
     let output = Command::new("nix")
+        .env("NIX_SHOW_STATS_PATH=", nix_show_stats_path_str)
         .arg("search")
         .arg([args.flakeuri, args.attrpath].concat())
         .arg(args.regex)
@@ -54,6 +62,7 @@ fn main() {
     //       "version": "10"
     //    }
     // }"#;
+
     let sting = String::from_utf8(output.stdout).expect("sadf");
     let serde_value: HashMap<String, Package> = serde_json::from_str(&sting).unwrap();
     println!("{:?}", serde_value);
