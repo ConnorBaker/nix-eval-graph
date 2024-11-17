@@ -12,3 +12,6 @@ target
 
 # Mac OS
 .DS_Store
+
+# Rust
+target/
