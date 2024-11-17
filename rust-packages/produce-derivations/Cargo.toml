@@ -1,6 +1,10 @@
-[dependencies]
-
 [package]
 name = "produce-derivations"
 version = "0.1.0"
 edition = "2021"
+
+[target.'cfg(unix)'.dependencies]
+clap = {version = "4.5.21", features = ["derive"]}
+serde = {version = "1.0.215", features = ["derive"]}
+serde_json = "1.0.133"
+tempfile = "3.14.0"

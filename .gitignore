@@ -7,9 +7,6 @@ result-*
 .direnv/
 .envrc
 
-# Rust
-target
-
 # Mac OS
 .DS_Store
 
