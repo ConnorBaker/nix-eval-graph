@@ -5,13 +5,16 @@
 let
   inherit (lib) licenses maintainers;
   inherit (lib.fileset) toSource unions;
+  inherit (lib.trivial) importTOML;
+
+  cargoTOML = importTOML ./Cargo.toml;
 
   finalAttrs = {
     __structuredAttrs = true;
     strictDeps = true;
 
-    pname = "produce-attr-paths";
-    version = "0.1.0";
+    pname = cargoTOML.package.name;
+    inherit (cargoTOML.package) version;
 
     src = toSource {
       root = ./.;
