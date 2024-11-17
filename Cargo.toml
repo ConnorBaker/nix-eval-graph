@@ -1,0 +1,8 @@
+# NOTE: This file exists mostly for the flake checks
+
+[workspace]
+members = ["rust-packages/*"]
+resolver = "2"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"

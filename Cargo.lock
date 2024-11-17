@@ -5,3 +5,7 @@ version = 3
 [[package]]
 name = "produce-attr-paths"
 version = "0.1.0"
+
+[[package]]
+name = "produce-derivations"
+version = "0.1.0"

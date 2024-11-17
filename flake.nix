@@ -62,39 +62,43 @@
           legacyPackages = pkgs;
 
           packages = {
-            inherit (pkgs) produce-attr-paths;
+            inherit (pkgs) produce-attr-paths produce-derivations;
           };
 
-          pre-commit.settings.hooks = {
-            # Formatter checks
-            treefmt = {
-              enable = true;
-              package = config.treefmt.build.wrapper;
+          pre-commit.settings = {
+            settings.rust.cargoManifestPath = "Cargo.toml";
+            hooks = {
+              # Formatter checks
+              treefmt = {
+                enable = true;
+                package = config.treefmt.build.wrapper;
+              };
+
+              # Nix checks
+              deadnix.enable = true;
+              nil.enable = true;
+              statix.enable = true;
+
+              # Rust
+              clippy.enable = true;
+
+              # Shell
+              shellcheck.enable = true;
             };
-
-            # Nix checks
-            deadnix.enable = true;
-            nil.enable = true;
-            statix.enable = true;
-
-            # Rust
-            clippy.enable = true;
-
-            # Shell
-            shellcheck.enable = true;
           };
 
           treefmt = {
+            flakeCheck = false; # Run by pre-commit
             projectRootFile = "flake.nix";
+            settings.global.excludes = [
+              "LICENSE"
+              "**/LICENSE"
+            ];
             programs = {
-              # Markdown, YAML
-              # JSON is not formatted; it should not be modified because it is either vendored from NVIDIA or
-              # produced by a script.
               prettier = {
                 enable = true;
                 includes = [
                   "*.md"
-                  "*.yaml"
                 ];
                 excludes = [ "*.json" ];
                 settings = {
@@ -108,10 +112,18 @@
               nixfmt.enable = true;
 
               # Rust
-              rustfmt.enable = true;
+              rustfmt = {
+                enable = true;
+                # TODO: Keep in sync with the Cargo.toml files in rust-packages/*.
+                edition = "2021";
+              };
 
               # Shell
               shfmt.enable = true;
+
+              # TOML
+              taplo.enable = true;
+              toml-sort.enable = true;
             };
           };
         };

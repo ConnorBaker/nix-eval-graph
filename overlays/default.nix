@@ -1,20 +1,10 @@
 inputs:
 let
   # inherits
-  inherit (inputs.nixpkgs.lib.fixedPoints)
-    composeManyExtensions
-    ;
-  inherit (inputs.nixpkgs.lib.filesystem)
-    packagesFromDirectoryRecursive
-    ;
+  inherit (inputs.nixpkgs.lib.fixedPoints) composeManyExtensions;
 
   # all local rust packages an overlay
-  rustPackages =
-    final: prev:
-    packagesFromDirectoryRecursive {
-      callPackage = final.callPackage;
-      directory = ../rust-packages;
-    };
+  rustPackages = import ./rust-packages.nix;
 
   # all local packages in a single overlay
   default = composeManyExtensions [ rustPackages ];
