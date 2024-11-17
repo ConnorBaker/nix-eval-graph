@@ -1,7 +1,10 @@
 use std::{
-    io::{self, Write},
+    collections::HashMap,
+    // io::{self, Write},
     process::Command,
 };
+
+use serde::{Deserialize, Serialize};
 
 use clap::Parser;
 
@@ -26,6 +29,13 @@ struct Args {
     regex: String,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+struct Package {
+    description: String,
+    pname: String,
+    version: String,
+}
+
 fn main() {
     let args = Args::parse();
 
@@ -37,7 +47,19 @@ fn main() {
         .output()
         .expect("failed to execute process");
 
-    println!("status: {}", output.status);
-    io::stdout().write_all(&output.stdout).unwrap();
-    io::stderr().write_all(&output.stderr).unwrap();
+    // static VALUE: &str = r#"{
+    //    "BCH": {
+    //       "description": "currency",
+    //       "pname": "BCH",
+    //       "version": "10"
+    //    }
+    // }"#;
+    let sting = String::from_utf8(output.stdout).expect("sadf");
+    let serde_value: HashMap<String, Package> = serde_json::from_str(&sting).unwrap();
+    println!("{:?}", serde_value);
+
+    // io::stdout().fmt
+    // println!("status: {}", output.status);
+    // io::stdout().write_all(&output.stdout).unwrap();
+    // io::stderr().write_all(&output.stderr).unwrap();
 }
