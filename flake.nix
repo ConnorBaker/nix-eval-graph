@@ -41,23 +41,29 @@
           system,
           ...
         }:
-        let
-          inherit (lib.filesystem) packagesFromDirectoryRecursive;
-        in
         {
           _module.args.pkgs = import inputs.nixpkgs {
             inherit system;
             overlays = [ inputs.self.overlays.default ];
           };
 
-          devShells =
-            packagesFromDirectoryRecursive {
-              inherit (pkgs) callPackage;
-              directory = ./devShells;
-            }
-            // {
-              default = config.devShells.rust-devShell;
-            };
+          devShells.default = pkgs.mkShell {
+            name = "rust-devShell";
+            packages =
+              (with pkgs; [
+                cargo
+                clippy
+                rust-analyzer
+                rustc
+                rustfmt
+                rustPlatform.rustLibSrc
+              ])
+              ++ config.pre-commit.settings.enabledPackages;
+            # So that rust-analyzer can find the source code of the standard library
+            env.RUST_SRC_PATH = pkgs.rustPlatform.rustLibSrc.outPath;
+            # Install pre-commit hooks
+            shellHook = config.pre-commit.installationScript;
+          };
 
           legacyPackages = pkgs;
 
@@ -65,14 +71,39 @@
             inherit (pkgs) produce-attr-paths produce-derivations;
           };
 
+          # NOTE: Cargo is run offline and does not have access to our dependencies, so we need
+          # to make an environment which has them present.
+          # https://github.com/cachix/git-hooks.nix/pull/396/files
+          checks.pre-commit =
+            let
+              drv = config.pre-commit.settings.run;
+              env = pkgs.stdenv.mkDerivation {
+                __structuredAttrs = true;
+                strictDeps = true;
+                name = "pre-commit-run";
+                src = config.pre-commit.settings.rootSrc;
+                nativeBuildInputs = [
+                  pkgs.git
+                  pkgs.rustPlatform.cargoSetupHook
+                ] ++ config.pre-commit.settings.enabledPackages;
+                cargoDeps = pkgs.rustPlatform.importCargoLock {
+                  lockFile = ./Cargo.lock;
+                };
+                buildPhase = drv.buildCommand;
+              };
+            in
+            lib.mkForce env;
+
           pre-commit.settings = {
             settings.rust.cargoManifestPath = "Cargo.toml";
             hooks = {
-              # Formatter checks
-              treefmt = {
-                enable = true;
-                package = config.treefmt.build.wrapper;
-              };
+              # Misc checks
+              check-executables-have-shebangs.enable = true;
+              check-merge-conflicts.enable = true;
+              check-shebang-scripts-are-executable.enable = true;
+              check-symlinks.enable = true;
+              check-toml.enable = true;
+              mixed-line-endings.enable = true;
 
               # Nix checks
               deadnix.enable = true;
@@ -80,15 +111,15 @@
               statix.enable = true;
 
               # Rust
-              clippy.enable = true;
-
-              # Shell
-              shellcheck.enable = true;
+              clippy = {
+                enable = true;
+                require_serial = true; # Don't parallelize
+                settings.allFeatures = true;
+              };
             };
           };
 
           treefmt = {
-            flakeCheck = false; # Run by pre-commit
             projectRootFile = "flake.nix";
             settings.global.excludes = [
               "LICENSE"
@@ -100,7 +131,6 @@
                 includes = [
                   "*.md"
                 ];
-                excludes = [ "*.json" ];
                 settings = {
                   embeddedLanguageFormatting = "auto";
                   printWidth = 120;
@@ -113,17 +143,17 @@
 
               # Rust
               rustfmt = {
-                enable = true;
                 # TODO: Keep in sync with the Cargo.toml files in rust-packages/*.
                 edition = "2021";
+                enable = true;
               };
-
-              # Shell
-              shfmt.enable = true;
 
               # TOML
               taplo.enable = true;
-              toml-sort.enable = true;
+              toml-sort = {
+                all = true;
+                enable = true;
+              };
             };
           };
         };

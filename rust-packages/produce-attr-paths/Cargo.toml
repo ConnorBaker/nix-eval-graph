@@ -1,10 +1,23 @@
-[package]
-name = "produce-attr-paths"
-version = "0.1.0"
-edition = "2021"
-
-[target.'cfg(unix)'.dependencies]
-clap = {version = "4.5.21", features = ["derive"]}
-serde = {version = "1.0.215", features = ["derive"]}
+[dependencies]
+axum = {features = ["http2"], version = "0.7.9"}
+hashbrown = {features = ["serde"], version = "0.15.1"}
+itertools = "0.13.0"
+serde = {features = ["derive"], version = "1.0.215"}
 serde_json = "1.0.133"
 tempfile = "3.14.0"
+tokio = {features = [
+  "macros",
+  "rt-multi-thread",
+  "tracing"
+], version = "1.41.1"}
+tower-http = {features = ["trace"], version = "0.6.1"}
+tracing = "0.1.40"
+tracing-subscriber = {features = ["env-filter"], version = "0.3.18"}
+tracing-unwrap = {default-features = false, features = [
+  "log-location"
+], version = "1.0.1"}
+
+[package]
+edition = "2021"
+name = "produce-attr-paths"
+version = "0.1.0"

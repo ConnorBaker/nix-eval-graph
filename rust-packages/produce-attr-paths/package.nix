@@ -9,6 +9,16 @@ let
 
   cargoTOML = importTOML ./Cargo.toml;
 
+  projectSources = unions [
+    # Lock file
+    finalAttrs.cargoLock.lockFile
+
+    # Project-specific files
+    ./Cargo.toml
+    ./LICENSE
+    ./src
+  ];
+
   finalAttrs = {
     __structuredAttrs = true;
     strictDeps = true;
@@ -17,20 +27,17 @@ let
     inherit (cargoTOML.package) version;
 
     src = toSource {
-      root = ./.;
-      fileset = unions [
-        ./Cargo.toml
-        ./LICENSE
-        ./src
-      ];
+      root = ../..;
+      fileset = projectSources;
     };
+
+    buildAndTestSubdir = "rust-packages/produce-attr-paths";
 
     cargoLock.lockFile = ../../Cargo.lock;
 
-    # File must be writeable.
-    postPatch = ''
-      install -Dm644 ${../../Cargo.lock} Cargo.lock
-    '';
+    passthru = {
+      inherit projectSources;
+    };
 
     meta = {
       description = "Produces a list of attribute paths under a given attribute path in a flake reference";

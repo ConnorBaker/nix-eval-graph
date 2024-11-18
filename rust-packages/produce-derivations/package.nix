@@ -1,5 +1,6 @@
 {
   lib,
+  produce-attr-paths,
   rustPlatform,
 }:
 let
@@ -9,6 +10,19 @@ let
 
   cargoTOML = importTOML ./Cargo.toml;
 
+  projectSources = unions [
+    # Lock file
+    finalAttrs.cargoLock.lockFile
+
+    # Project-specific files
+    ./Cargo.toml
+    ./LICENSE
+    ./src
+
+    # Dependencies
+    produce-attr-paths.passthru.projectSources
+  ];
+
   finalAttrs = {
     __structuredAttrs = true;
     strictDeps = true;
@@ -17,20 +31,17 @@ let
     inherit (cargoTOML.package) version;
 
     src = toSource {
-      root = ./.;
-      fileset = unions [
-        ./Cargo.toml
-        ./LICENSE
-        ./src
-      ];
+      root = ../..;
+      fileset = projectSources;
     };
+
+    buildAndTestSubdir = "rust-packages/produce-derivations";
 
     cargoLock.lockFile = ../../Cargo.lock;
 
-    # File must be writeable.
-    postPatch = ''
-      install -Dm644 ${../../Cargo.lock} Cargo.lock
-    '';
+    passthru = {
+      inherit projectSources;
+    };
 
     meta = {
       description = "Consumes a flake reference and attribute path and produces the set of derivations required to build it";
