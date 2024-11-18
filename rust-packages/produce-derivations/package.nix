@@ -47,6 +47,7 @@ let
       description = "Consumes a flake reference and attribute path and produces the set of derivations required to build it";
       homepage = "https://github.com/ConnorBaker/nix-eval-graph/tree/main/rust-packages/produce-derivations";
       license = licenses.mit;
+      mainProgram = "produce-derivations";
       maintainers = with maintainers; [
         connorbaker
         djacu

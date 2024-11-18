@@ -43,6 +43,7 @@ let
       description = "Produces a list of attribute paths under a given attribute path in a flake reference";
       homepage = "https://github.com/ConnorBaker/nix-eval-graph/tree/main/rust-packages/produce-attr-paths";
       license = licenses.mit;
+      mainProgram = "produce-attr-paths";
       maintainers = with maintainers; [
         connorbaker
         djacu

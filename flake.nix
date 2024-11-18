@@ -74,25 +74,28 @@
           # NOTE: Cargo is run offline and does not have access to our dependencies, so we need
           # to make an environment which has them present.
           # https://github.com/cachix/git-hooks.nix/pull/396/files
-          checks.pre-commit =
-            let
-              drv = config.pre-commit.settings.run;
-              env = pkgs.stdenv.mkDerivation {
-                __structuredAttrs = true;
-                strictDeps = true;
-                name = "pre-commit-run";
-                src = config.pre-commit.settings.rootSrc;
-                nativeBuildInputs = [
-                  pkgs.git
-                  pkgs.rustPlatform.cargoSetupHook
-                ] ++ config.pre-commit.settings.enabledPackages;
-                cargoDeps = pkgs.rustPlatform.importCargoLock {
-                  lockFile = ./Cargo.lock;
+          checks = {
+            integration-test = pkgs.callPackage ./tests/integration-test.nix { };
+            pre-commit =
+              let
+                drv = config.pre-commit.settings.run;
+                env = pkgs.stdenv.mkDerivation {
+                  __structuredAttrs = true;
+                  strictDeps = true;
+                  name = "pre-commit-run";
+                  src = config.pre-commit.settings.rootSrc;
+                  nativeBuildInputs = [
+                    pkgs.git
+                    pkgs.rustPlatform.cargoSetupHook
+                  ] ++ config.pre-commit.settings.enabledPackages;
+                  cargoDeps = pkgs.rustPlatform.importCargoLock {
+                    lockFile = ./Cargo.lock;
+                  };
+                  buildPhase = drv.buildCommand;
                 };
-                buildPhase = drv.buildCommand;
-              };
-            in
-            lib.mkForce env;
+              in
+              lib.mkForce env;
+          };
 
           pre-commit.settings = {
             settings.rust.cargoManifestPath = "Cargo.toml";
