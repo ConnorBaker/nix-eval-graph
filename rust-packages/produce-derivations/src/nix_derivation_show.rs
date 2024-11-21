@@ -119,7 +119,6 @@ pub fn nix_derivation_show(
             "--no-allow-import-from-derivation",
             "--no-allow-unsafe-native-code-during-evaluation",
             "--no-eval-cache",
-            "--offline",
             "--pure-eval",
             "--quiet",
             "--recursive",

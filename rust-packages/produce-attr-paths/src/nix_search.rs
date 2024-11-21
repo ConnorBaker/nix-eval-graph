@@ -41,7 +41,6 @@ pub fn nix_search(flake_ref: &str, attr_path: &str) -> (Vec<String>, String, Nix
             "--no-allow-import-from-derivation",
             "--no-allow-unsafe-native-code-during-evaluation",
             "--no-eval-cache",
-            "--offline",
             "--pure-eval",
             "--quiet",
         ])

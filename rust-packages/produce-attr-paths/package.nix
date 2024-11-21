@@ -1,10 +1,13 @@
 {
   lib,
+  makeWrapper,
+  nix,
   rustPlatform,
 }:
 let
   inherit (lib) licenses maintainers;
   inherit (lib.fileset) toSource unions;
+  inherit (lib.strings) makeBinPath;
   inherit (lib.trivial) importTOML;
 
   cargoTOML = importTOML ./Cargo.toml;
@@ -34,6 +37,15 @@ let
     buildAndTestSubdir = "rust-packages/produce-attr-paths";
 
     cargoLock.lockFile = ../../Cargo.lock;
+
+    nativeBuildInputs = [
+      makeWrapper
+    ];
+
+    postInstall = ''
+      wrapProgram "$out/bin/${finalAttrs.meta.mainProgram}" \
+        --prefix PATH : "${makeBinPath [ nix ]}"
+    '';
 
     passthru = {
       inherit projectSources;
