@@ -1,15 +1,7 @@
-{ config, lib, ... }:
+{ lib, ... }:
 let
   inherit (builtins) toString;
-  inherit (lib.strings)
-    concatMapStringsSep
-    isString
-    ;
-  inherit (lib.trivial) boolToString;
-
-  boolOrStringToString = bs: if isString bs then bs else boolToString bs;
-
-  ethernetCfg = config.systemd.network.networks."10-eth";
+  inherit (lib.strings) concatMapStringsSep;
 in
 {
   boot.kernel.sysctl =
@@ -74,37 +66,28 @@ in
   # Disable the old-style Networking and use systemd
   networking = {
     useDHCP = false;
-    useNetworkd = true;
+    # NOTE: Only the router enables Networkd
+    useNetworkd = false;
     firewall.enable = false;
-  };
-
-  services = {
-    bpftune.enable = true;
-    resolved = {
-      enable = true;
-      fallbackDns = ethernetCfg.networkConfig.DNS;
-      dnssec = boolOrStringToString ethernetCfg.networkConfig.DNSSEC;
-      dnsovertls = boolOrStringToString ethernetCfg.networkConfig.DNSOverTLS;
-    };
   };
 
   # systemd.services.systemd-networkd.environment.SYSTEMD_LOG_LEVEL = "debug";
   systemd.network = {
     enable = true;
-    wait-online.enable = false;
-    networks."10-eth" = {
-      matchConfig.Name = "eth*";
-      linkConfig.RequiredForOnline = "yes";
+    # Machines must specify the MAC address of the interface
+    links."10-eth1".matchConfig.OriginalName = "eth1";
+    networks."40-eth1" = {
+      matchConfig.Name = "eth1";
+      DHCP = "ipv4";
+      # This setting is important to have the router assign the
+      # configured lease based on the client's MAC address. Also see:
+      # https://github.com/systemd/systemd/issues/21368#issuecomment-982193546
+      dhcpV4Config.ClientIdentifier = "mac";
+      linkConfig.RequiredForOnline = "routable";
       networkConfig = {
-        # Cloudflare
-        DNS = [
-          "1.1.1.1"
-          "2606:4700:4700::1111"
-          "1.0.0.1"
-          "2606:4700:4700::1001"
-        ];
         DNSOverTLS = true;
         DNSSEC = "allow-downgrade";
+        IPv6AcceptRA = false;
       };
       # Larger TCP window sizes, courtesy of
       # https://wiki.archlinux.org/title/Systemd-networkd#Speeding_up_TCP_slow-start

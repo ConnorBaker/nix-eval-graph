@@ -14,6 +14,10 @@ async fn produce_attr_paths_endpoint(Json(args): Json<Args>) -> Json<Vec<String>
     // TODO(@connorbaker): Forward stderr somewhere.
     let (relative_descendant_attr_paths, stderr, stats) =
         nix_search(&args.flake_ref, &args.attr_path);
+    tracing::info!(
+        "Finished with stats {}",
+        serde_json::to_string(&stats).unwrap()
+    );
     tracing::info!("Found {} packages", relative_descendant_attr_paths.len());
     if !stderr.is_empty() {
         tracing::warn!("nix search populated stderr: {:?}", stderr);

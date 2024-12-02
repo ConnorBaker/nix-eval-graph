@@ -1,8 +1,8 @@
 {
   virtualisation = {
-    cores = 4;
+    cores = 2;
     graphics = false;
-    memorySize = 4096;
+    memorySize = 2048;
     # TODO(@connorbaker): Consider using useNixStoreImage if it boosts performance?
     vlans = [ 1 ];
   };
