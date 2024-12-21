@@ -1,7 +1,7 @@
 {
   lib,
   makeWrapper,
-  nix,
+  nix-no-gc,
   rustPlatform,
 }:
 let
@@ -44,7 +44,7 @@ let
 
     postInstall = ''
       wrapProgram "$out/bin/${finalAttrs.meta.mainProgram}" \
-        --prefix PATH : "${makeBinPath [ nix ]}"
+        --prefix PATH : "${makeBinPath [ nix-no-gc ]}"
     '';
 
     passthru = {

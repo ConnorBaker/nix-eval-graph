@@ -66,37 +66,30 @@ in
   # Disable the old-style Networking and use systemd
   networking = {
     useDHCP = false;
-    # NOTE: Only the router enables Networkd
-    useNetworkd = false;
+    useNetworkd = true;
     firewall.enable = false;
   };
 
-  # systemd.services.systemd-networkd.environment.SYSTEMD_LOG_LEVEL = "debug";
-  systemd.network = {
-    enable = true;
-    # Machines must specify the MAC address of the interface
-    links."10-eth1".matchConfig.OriginalName = "eth1";
-    networks."40-eth1" = {
-      matchConfig.Name = "eth1";
-      DHCP = "ipv4";
-      # This setting is important to have the router assign the
-      # configured lease based on the client's MAC address. Also see:
-      # https://github.com/systemd/systemd/issues/21368#issuecomment-982193546
-      dhcpV4Config.ClientIdentifier = "mac";
-      linkConfig.RequiredForOnline = "routable";
-      networkConfig = {
-        DNSOverTLS = true;
-        DNSSEC = "allow-downgrade";
-        IPv6AcceptRA = false;
+  systemd = {
+    network = {
+      enable = true;
+      networks."40-eth1" = {
+        networkConfig = {
+          DNSOverTLS = true;
+          DNSSEC = "allow-downgrade";
+        };
+        # Larger TCP window sizes, courtesy of
+        # https://wiki.archlinux.org/title/Systemd-networkd#Speeding_up_TCP_slow-start
+        # TODO: Looks like this is not working:
+        # Route section without Gateway=, Destination=, Source=, or PreferredSource= field configured. Ignoring [Route] section from line 12.
+        # routes = [
+        #   {
+        #     InitialCongestionWindow = 50;
+        #     InitialAdvertisedReceiveWindow = 50;
+        #   }
+        # ];
       };
-      # Larger TCP window sizes, courtesy of
-      # https://wiki.archlinux.org/title/Systemd-networkd#Speeding_up_TCP_slow-start
-      routes = [
-        {
-          InitialCongestionWindow = 50;
-          InitialAdvertisedReceiveWindow = 50;
-        }
-      ];
     };
+    services.systemd-networkd.environment.SYSTEMD_LOG_LEVEL = "debug";
   };
 }

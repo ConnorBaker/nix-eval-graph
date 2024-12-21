@@ -16,7 +16,6 @@ in
   ];
   environment.systemPackages = [ pkgs.produce-attr-paths ];
   systemd = {
-    network.links."10-eth1".linkConfig.MACAddress = "02:de:ad:be:ef:04";
     services.produce-attr-paths = {
       enable = true;
       description = "A service that produces attribute paths";

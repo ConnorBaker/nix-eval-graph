@@ -5,7 +5,8 @@ use serde::{Deserialize, Serialize};
 pub struct NixEvalStats {
     cpu_time: f64,
     envs: Envs,
-    gc: Gc,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    gc: Option<Gc>, // Absent when Nix is built without GC
     list: List,
     nr_avoided: u64,
     nr_exprs: u64,
@@ -74,8 +75,10 @@ struct Symbols {
 #[serde(rename_all = "camelCase")]
 struct Time {
     cpu: f64,
-    gc: f64,
-    gc_fraction: f64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    gc: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    gc_fraction: Option<f64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

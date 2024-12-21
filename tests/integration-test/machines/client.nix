@@ -12,7 +12,7 @@ let
     text = ''
       curl \
         -Lvvv \
-        -X GET 'http://10.0.0.4:3000/produce-attr-paths' \
+        -X GET 'http://produceAttrPaths:3000/produce-attr-paths' \
         -H 'Content-Type: application/json' \
         -d '{
               "flakeRef": "path:${testFlake.outPath}?narHash=${testFlake.sourceInfo.narHash}",
@@ -32,5 +32,4 @@ in
   ];
   environment.systemPackages = [ queryAttrPaths ];
   system.stateVersion = "24.05";
-  systemd.network.links."10-eth1".linkConfig.MACAddress = "02:de:ad:be:ef:03";
 }
