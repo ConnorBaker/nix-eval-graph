@@ -77,7 +77,7 @@ async fn main() {
                 // ),
         );
 
-    let addr = "127.0.0.1:3001";
+    let addr = "0.0.0.0:3001";
     let listener = TcpListener::bind(addr)
         .await
         .expect_or_log(&*format!("Couldn't bind to {}", addr));

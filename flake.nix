@@ -76,7 +76,11 @@
           # to make an environment which has them present.
           # https://github.com/cachix/git-hooks.nix/pull/396/files
           checks = {
-            integration-test = pkgs.callPackage ./tests/integration-test/package.nix { };
+            integration-test = pkgs.callPackage ./tests/integration-test.nix { };
+            produce-attr-paths-cudaPackages_12 =
+              pkgs.callPackage ./tests/produce-attr-paths-cudaPackages_12.nix
+                { };
+            produce-derivations-hello = pkgs.callPackage ./tests/produce-derivations-hello.nix { };
             pre-commit =
               let
                 drv = config.pre-commit.settings.run;
