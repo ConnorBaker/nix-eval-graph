@@ -14,6 +14,10 @@ async fn produce_derivations_endpoint(Json(args): Json<Args>) -> Json<Vec<String
     );
     // TODO(@connorbaker): Forward stderr somewhere.
     let (derivations, stderr, stats) = nix_derivation_show(&args.flake_ref, &args.attr_path);
+    tracing::info!(
+        "Finished with stats {}",
+        serde_json::to_string(&stats).unwrap()
+    );
     tracing::info!("Found {} derivations in the closure", derivations.len());
     if !stderr.is_empty() {
         tracing::warn!("nix search populated stderr: {:?}", stderr);

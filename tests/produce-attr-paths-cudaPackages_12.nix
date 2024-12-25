@@ -17,6 +17,6 @@ testers.runNixOSTest {
       produceAttrPaths.wait_for_open_port(3000)
 
     with subtest("check query-attr-paths"):
-      client.succeed("query-attr-paths 'legacyPackages.x86_64-linux.cudaPackages_12'")
+      print(client.succeed("query-attr-paths 'legacyPackages.x86_64-linux.cudaPackages_12'"))
   '';
 }

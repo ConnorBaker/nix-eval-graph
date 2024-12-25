@@ -50,7 +50,7 @@ pub fn nix_search(flake_ref: &str, attr_path: &str) -> (Vec<String>, String, Nix
 
     let stdout = String::from_utf8(output.stdout).expect_or_log("Couldn't parse stdout");
     let stderr = String::from_utf8(output.stderr).expect_or_log("Couldn't parse stderr");
-    let json_output = match serde_json::from_str::<HashMap<String, Value>>(&stdout) {
+    let json_output: HashMap<String, Value> = match serde_json::from_str(&stdout) {
         Ok(json) => json,
         Err(parse_error) => {
             tracing::error!(?parse_error, stderr, stdout);

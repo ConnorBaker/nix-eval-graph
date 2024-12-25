@@ -17,6 +17,6 @@ testers.runNixOSTest {
       produceDerivations.wait_for_open_port(3001)
 
     with subtest("check query-derivations"):
-      client.succeed("query-derivations 'legacyPackages.x86_64-linux.hello'")
+      print(client.succeed("query-derivations 'legacyPackages.x86_64-linux.hello'"))
   '';
 }
